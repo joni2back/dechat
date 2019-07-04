@@ -1,0 +1,63 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+
+    <title></title>
+    
+    <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/4.0/examples/sticky-footer/sticky-footer.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <main role="main" class="container">
+      <pre id="chat"></pre>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted">
+            <form>
+                <div class="form-row">
+                    <div class="col-9 mb-2">
+                        <input type="text" class="form-control" placeholder="">
+                    </div>
+               
+                    <div class="col-3 mb-2">
+                        <button type="submit" class="btn btn-primary">snd</button>
+                    </div>
+                </div>
+            </form>
+        </span>
+      </div>
+    </footer>
+
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        crossorigin="anonymous">
+    </script>
+    <script src="index.html.js"></script>
+
+    <script type="chat/template" id="template-chat-message">
+        <div class="direct-chat-msg">
+            <div class="direct-chat-info clearfix">
+                <span class="direct-chat-name pull-left">%username% (%orgname%)</span>
+                <span class="direct-chat-timestamp pull-right">%messagedate%</span>
+            </div>
+            <img class="direct-chat-img" src="%avatarurl%" alt="%username%">
+            <div class="direct-chat-text">
+                %message%
+            </div>
+        </div>
+    </script>
+
+  </body>
+</html>
