@@ -6,7 +6,6 @@ services:
     volumes:
       - ./:/app
       - /app/node_modules
-      - /var/www/kiteprop/storage/framework/sessions:/sessions
     working_dir: /app
     build:
       context: .
