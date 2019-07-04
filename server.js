@@ -11,6 +11,7 @@ const mongoose = require('./middlewares/mongoose');
 
 const routes = require('./routes/routes');
 const ChatMessage = require('./mongoose-models/ChatMessage');
+const ChatService = require('./services/ChatService');
 
 server.listen(process.env.PORT, process.env.HOSTNAME, () => {
     console.log('Express listening on: %s:%s '
@@ -27,49 +28,40 @@ app.use(express.static('public'));
 
 io.sockets.on('connection', socket => {
 
-    socket.username = "Anonymous " + (socket.id || '').substr(0, 4);
-
     socket.on('set_userdata', data => {
-        socket.username = data.username;
-        socket.userid = data.userid;
-        socket.orgname = data.orgname;
-        socket.orgid = data.orgid;
-        socket.valid = sessionExists(data.session);
+        socket.email = data.email;
+        socket.firstName = data.firstName;
+        socket.lastName = data.lastName;
+        socket.conversationId = data.conversationId;
     });
    
-    socket.on("join_room", room => {
-        socket.join(room);
-        socket.broadcast.in(room).emit(socket.username + " has joined");
+    socket.on('join_conversation', conversationId => {
+        socket.join(conversationId);
+        socket.broadcast.in(conversationId).emit('An user has joined');
     });
 
     socket.on('new_message', data => {
 
-        if (! socket.valid) {
-            return console.log('Invalid user', data);
-        }
-
         if (! (data.message || '').trim()) {
             return;
-        }       
+        }
 
-        const message = {
+        const messageData = {
             message: data.message, 
-            username: socket.username,
-            orgname: socket.orgname,
-            userid: socket.userid,
-            orgid: socket.orgid,
-            date: new Date(),
-            room: data.room
+            email: socket.email,
+            conversationId: data.conversationId
         };
 
-        io.sockets.in(data.room).emit('new_message', message);
-        new ChatMessage(message).save();
-    })
+        ChatService.parseNewMessage(data.conversationId, messageData).then(message => {
+            io.sockets.in(data.conversationId).emit('new_message', message);
+        });
+        
+    });
 
-    socket.on('typing', (data) => {
+    /*socket.on('typing', (data) => {
         io.sockets.in(data.room).emit('typing', {
             username : socket.username,
             userid: socket.userid
         });
-    })
+    })*/
 })

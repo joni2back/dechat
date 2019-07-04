@@ -34,9 +34,16 @@ function formatDate(date) {
 }
 
 function getHistory(conversationId) {
-    var conversationId = sessionStorage.getItem('conversationId');
-    var url = location.href.replace('/history/') + conversationId;
-    return $.ajax(url);
+    return new Promise((resolve, reject) => {
+        $.ajax('/history/' + conversationId).done(response => {
+            if (response.messages) {
+                return resolve(response.messages);
+            }
+            reject(response);
+        }).fail(err => {
+            reject(err);
+        });
+    });
 }
 
 function startChat() {
@@ -49,7 +56,11 @@ function startChat() {
                 conversationId: conversationId
             }
         }).then(response => {
-            resolve(response._id && sessionStorage.setItem('conversationId', response._id));
+            if (response._id) {
+                sessionStorage.setItem('conversationId', response._id);
+                return resolve(response._id);
+            }
+            reject(response) ;
         }).catch(err => {
             reject(err);
         });
@@ -64,7 +75,7 @@ function beep() {
 $(document).ready(function() {
     var historyLoaded = false;
 
-    var $messageInput = $('input[name=chat-message-input]');
+    var $messageInput = $('input[name=chat-msg-input]');
     var $messageForm = $('form:first');
     var $chatRoom = $('#chat');
     var $feedback = $('#feedback');
@@ -73,11 +84,11 @@ $(document).ready(function() {
         $chatRoom.scrollTop(999999);
     }
 
-    function loadHistory() {
-        !historyLoaded && getHistory().done(function(response) {
+    function loadHistory(conversationId) {
+        !historyLoaded && getHistory(conversationId).then(messages => {
             historyLoaded = true;
-            response.forEach(function(data) {
-                writeMsg(data, data.userid == config.userId);
+            messages.forEach(function(message) {
+                writeMsg(message, message.user.userType === 'client');
             });
             goDown();
         });
@@ -100,13 +111,13 @@ $(document).ready(function() {
 
         socket.once('connect', function(socket) {
             $chatRoom.parents('.box').find('.overlay').addClass('hide');
-            loadHistory();
+            loadHistory(conversationId);
         }).once('connect_error', function() {
             $chatRoom.parents('.box').find('.overlay').removeClass('hide');
-            loadHistory();
+            loadHistory(conversationId);
         }).once('connect_timeout', function() {
             $chatRoom.parents('.box').find('.overlay').removeClass('hide');
-            loadHistory();
+            loadHistory(conversationId);
         });
     
         $messageInput.bind('input', function() {
@@ -125,8 +136,8 @@ $(document).ready(function() {
             event.preventDefault();
     
             socket.emit('new_message', {
-                message : $messageInput.val(),
-                room: config.activeRoom
+                message: $messageInput.val(),
+                conversationId: conversationId
             });
     
             $messageInput.val('');
@@ -164,6 +175,8 @@ $(document).ready(function() {
             }, 2000)
         })
 
+    }).catch(err => {
+        console.error(err);
     });
 
 
