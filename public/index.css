@@ -8,11 +8,11 @@
     src: url("ArialNovaCond.woff") format('woff');
 }
 
-body, html {
+body {
     font-size: 14px;
     font-family: 'ArialNovaCond';
     max-width:600px;
-    margin: 0 auto;
+    margin: 75px auto;
 }
 .row.row-broken {
     padding-bottom: 0;
@@ -21,7 +21,7 @@ body, html {
     padding: 20px;
 }
 .chat {
-    height: calc(100vh - 50px);
+    height: calc(100vh - 200px);
     overflow-y: auto;
 }
 .decor-default {
@@ -173,13 +173,13 @@ body, html {
     left: 4px;
 }
 .chat-body .answer.right .text {
-    background: #7266ba;
+    background: #009fe3;
     color: #ffffff;
     border-radius: 8px 8px 0 8px;
 }
 .chat-body .answer.right .text:before {
     right: -30px;
-    border-left-color: #7266ba;
+    border-left-color: #009fe3;
     border-left-width: 12px;
 }
 .chat-body .answer.right .time {
