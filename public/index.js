@@ -71,52 +71,49 @@ function beep() {
     return;
 }
 
+function goDown($element) {
+    $('.chat').scrollTop(999999);
+}
 
 $(document).ready(function() {
     var historyLoaded = false;
 
     var $messageInput = $('input[name=chat-msg-input]');
     var $messageForm = $('form:first');
-    var $chatRoom = $('#chat');
-    var $feedback = $('#feedback');
+    var $chatRoom = $('.chat-body');
+    var $feedback = $('.chat-feedback');
 
-    function goDown() {
-        $chatRoom.scrollTop(999999);
-    }
 
     function loadHistory(conversationId) {
         !historyLoaded && getHistory(conversationId).then(messages => {
             historyLoaded = true;
             messages.forEach(function(message) {
-                writeMsg(message, message.user.userType === 'client');
+                writeMsg(message, message.userType === 'user');
             });
-            goDown();
+            goDown($chatRoom);
         });
     }
 
     function writeMsg(data, itsMe) {
         var html = $('#template-chat-message').html();
-        html = html.replace(/%firstName%/g, handleUserInput(data.user.firstName));
-        html = html.replace(/%lastName%/g, handleUserInput(data.user.lastName));
-        html = html.replace(/%email%/g, handleUserInput(data.user.email));
-        html = html.replace(/%date%/g, handleUserInput(formatDate(data.date)));
-    
-        html = itsMe ? html.replace('direct-chat-msg', 'direct-chat-msg right') : html;
+        html = html.replace(/%username%/g, itsMe ? 'Me' : 'Support');
+        html = html.replace(/%avatarurl%/g, itsMe ? 'avatar.png' : 'support.jpg');
+        html = html.replace(/%message%/g, handleUserInput(data.message));
+        html = html.replace(/%messagedate%/g, handleUserInput(formatDate(data.date)));
+        html = html.replace(/%class%/g, itsMe ? 'right' : 'left');
         $chatRoom.append(html);
     }
-
 
     startChat().then(conversationId => {
         var socket = io.connect(ChatConfig.host + ':' + ChatConfig.port);
 
         socket.once('connect', function(socket) {
-            $chatRoom.parents('.box').find('.overlay').addClass('hide');
+            join(conversationId);
+            console.log('connected ')
             loadHistory(conversationId);
         }).once('connect_error', function() {
-            $chatRoom.parents('.box').find('.overlay').removeClass('hide');
             loadHistory(conversationId);
         }).once('connect_timeout', function() {
-            $chatRoom.parents('.box').find('.overlay').removeClass('hide');
             loadHistory(conversationId);
         });
     
@@ -126,10 +123,8 @@ $(document).ready(function() {
             });
         });
 
-        function join() {
-            socket.emit('join_conversation', {
-                conversationId: conversationId,
-            });
+        function join(conversationId) {
+            socket.emit('join_conversation', conversationId);
         }
     
         function sendMsg(event) {
@@ -142,11 +137,10 @@ $(document).ready(function() {
     
             $messageInput.val('');
             setTimeout(function() {
-                goDown();
+                goDown($chatRoom);
             }, 50);
         }
     
-        join();
         
         $messageForm.on('submit', sendMsg);
         $messageInput.on('keypress', function(event) {
@@ -154,22 +148,20 @@ $(document).ready(function() {
         });
     
         socket.on('new_message', function(data) {
-            var itsMe = data.userid == config.userId;
+            var itsMe = data.userType === 'user';
             $feedback.html('');
             writeMsg(data, itsMe);
             !itsMe && setTimeout(function() {
                 beep();
             });
-            goDown();
+            goDown($chatRoom);
         })
     
         var typingTimeout = null;
         socket.on('typing', function(data) {
-            if (data.username == config.userName) {
-                return;
-            }
+            $feedback.html('Support is typing...');
             clearTimeout(typingTimeout);
-            $feedback.html(data.username + ' está escribiendo...');
+            
             typingTimeout = setTimeout(function() {
                 $feedback.html('');
             }, 2000)

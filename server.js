@@ -12,6 +12,7 @@ const mongoose = require('./middlewares/mongoose');
 const routes = require('./routes/routes');
 const ChatMessage = require('./mongoose-models/ChatMessage');
 const ChatService = require('./services/ChatService');
+const ChatAIRepliesServer = require('./services/ChatAIRepliesServer.js');
 
 server.listen(process.env.PORT, process.env.HOSTNAME, () => {
     console.log('Express listening on: %s:%s '
@@ -20,7 +21,7 @@ server.listen(process.env.PORT, process.env.HOSTNAME, () => {
     );
 });
 
-app.use(express.urlencoded())
+app.use(express.urlencoded());
 app.use(mongoose);
 app.use(cors);
 app.use(routes);
@@ -41,27 +42,26 @@ io.sockets.on('connection', socket => {
     });
 
     socket.on('new_message', data => {
+        const convId = data.conversationId;
 
-        if (! (data.message || '').trim()) {
-            return;
-        }
+        ChatService.parseNewMessage(convId, data).then(message => {
+            io.sockets.in(convId).emit('new_message', message);
+            setTimeout(() => {
+                io.sockets.in(convId).emit('typing', message);
+                ChatService.loadOrCreateConversation(convId).then(conversation => {
 
-        const messageData = {
-            message: data.message, 
-            email: socket.email,
-            conversationId: data.conversationId
-        };
 
-        ChatService.parseNewMessage(data.conversationId, messageData).then(message => {
-            io.sockets.in(data.conversationId).emit('new_message', message);
+                    ChatAIRepliesServer.getAReplyForConversation(conversation).then(reply => {
+
+                        ChatService.createAReplyFromBot(convId, {
+                            message: reply
+                        }).then(message => {
+                            io.sockets.in(convId).emit('new_message', message);
+                        });
+                    });
+                });
+            }, 1000);
         });
         
     });
-
-    /*socket.on('typing', (data) => {
-        io.sockets.in(data.room).emit('typing', {
-            username : socket.username,
-            userid: socket.userid
-        });
-    })*/
-})
+});

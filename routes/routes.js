@@ -4,23 +4,15 @@ const ChatConversation  = require('../mongoose-models/ChatConversation');
 const ChatService = require('../services/ChatService');
 const path = require('path');
 
-
-router.get('/', (req, res) => {
-    res.sendFile(path.resolve('index.html'));
-});
-
-
 router.get('/reply', (req, res) => {
-
-
-
 });
 
 router.get('/history/:conversationId', (req, res) => {
     const conversationId = req.params.conversationId;
     const limit = 100;
 
-    ChatConversation.findOne({_id: conversationId}).then(c => {
+    ChatConversation.findOne({_id: conversationId}).populate('messages').then(c => {
+        
         res.send(c);
     }).catch(err => {
         res.status(500).send(err);

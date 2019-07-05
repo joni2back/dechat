@@ -8,7 +8,10 @@ const ChatConversationSchema = new mongoose.Schema({
     messages: [{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'ChatMessage'
-    }]
+    }],
+    obtainedData: {
+        type: mongoose.Schema.Types.Mixed
+    }
 });
 
 module.exports = mongoose.model('ChatConversation', ChatConversationSchema);

@@ -5,10 +5,10 @@ const ChatMessageSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    user: {
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'ChatUser',
-        required: true
+    userType: {
+        type: String,
+        enum: ['user', 'bot'],
+        default: 'user'
     },
     message: {
       type: String

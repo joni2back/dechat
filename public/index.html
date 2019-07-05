@@ -1,63 +1,54 @@
-
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
-
-    <title></title>
-    
     <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://getbootstrap.com/docs/4.0/examples/sticky-footer/sticky-footer.css" rel="stylesheet">
-  </head>
+    <link href="https://getbootstrap.com/docs/4.0/examples/sticky-footer/sticky-footer.cssXX" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
+</head>
 
-  <body>
-
+<body>
     <main role="main" class="container">
-      <pre id="chat"></pre>
+        <div class="content container-fluid bootstrap snippets">
+            <div class="row row-broken">
+                <div class="col-sm-12 col-xs-12 chat" style="outline: none;" tabindex="5001">
+                    <div class="col-inside-lg decor-default">
+                        <div class="chat-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer class="footer">
-      <div class="container">
-        <span class="text-muted">
-            <form>
-                <div class="form-row">
-                    <div class="col-9 mb-2">
-                        <input type="text" class="form-control" name="chat-msg-input" placeholder="">
-                    </div>
-               
-                    <div class="col-3 mb-2">
-                        <button type="submit" class="btn btn-primary">snd</button>
-                    </div>
-                </div>
-            </form>
-        </span>
-      </div>
+        <div class="container">
+            <span class="text-muted">
+                <form class="form-answer">
+                    <div class="chat-feedback"></div>
+                    <input type="text" class="" placeholder="Type message..." name="chat-msg-input" placeholder="">
+                </form>
+            </span>
+        </div>
     </footer>
 
-    
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-        crossorigin="anonymous">
-    </script>
-    <script src="index.html.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
     <script type="chat/template" id="template-chat-message">
-        <div class="direct-chat-msg">
-            <div class="direct-chat-info clearfix">
-                <span class="direct-chat-name pull-left">%username% (%orgname%)</span>
-                <span class="direct-chat-timestamp pull-right">%messagedate%</span>
+        <div class="answer %class%">
+            <div class="avatar">
+                <img src="%avatarurl%" alt="%username%">
+                <div class="status online"></div>
             </div>
-            <img class="direct-chat-img" src="%avatarurl%" alt="%username%">
-            <div class="direct-chat-text">
+            <div class="text">
                 %message%
             </div>
+            <div class="name">%username% - %messagedate%</div>
         </div>
     </script>
+    <script src="index.js"></script>
 
-  </body>
+</body>
 </html>
