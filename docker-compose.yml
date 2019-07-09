@@ -8,7 +8,7 @@ services:
     working_dir: /app
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile-chat_bot_node
     command: npm run start 
     environment:
       - PORT=6860
@@ -35,8 +35,7 @@ services:
       - "443:443"
     volumes:
       - ./chat-replies-api:/var/www
-      - ./dockerfiles/core_nginx.conf:/etc/nginx/conf.d/site.conf
-      - core_phpfpm
+      - ./chat_replies_api_nginx.conf:/etc/nginx/conf.d/site.conf
 
   chat_replies_api_phpfpm:
     container_name: chat_replies_api_phpfpm
@@ -44,7 +43,7 @@ services:
     working_dir: /var/www    
     build:
       context: .
-      dockerfile: dockerfiles/Dockerfile-replies-api
+      dockerfile: ./Dockerfile-chat_replies_api_phpfpm
 
     volumes:
       - ./chat-replies-api:/var/www
