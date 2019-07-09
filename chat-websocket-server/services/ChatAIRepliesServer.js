@@ -4,7 +4,7 @@ const urls = {
 
 const hasForgottenPwd = /(lost|can\'?t|forg.t|missin).+(pass|password|account|credentials)/i;
 const wannaBuyBike = /(wanna|want|like|can).+(buy|purchase|get).+(bike)/i;
-const isConfirming = /yes|sure|ok|yeah|that\'s? right|right/i;
+const isConfirming = /yes|sure|yeah|that\'s? right|right/i;
 const isNegating = /nop?e?|nu|nah|neh|idn/i;
 const isGreeting = /^morning|(good (morning|day|night|evening))|hey|hi|hello|sup|(what?s.up)|(how are (you|u)?\?)/i;
 const isClosing = /bye|good bye|bbye|chau|thank you|thanks/i;
@@ -56,7 +56,7 @@ function randArr(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function getAReplyForConversation(conversation) {
+function getAReplyForConversation(conversation, expecting) {
     return new Promise((resolve, reject) => {
         const lastMessageObject = [...conversation.messages].slice(-1)[0];
         const lastMessage = lastMessageObject.message;

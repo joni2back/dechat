@@ -4,8 +4,7 @@ services:
     container_name: chat_bot_node
     image: node:11
     volumes:
-      - ./:/app
-      - /app/node_modules
+      - ./chat-websocket-server:/app
     working_dir: /app
     build:
       context: .
@@ -25,3 +24,27 @@ services:
     image: mongo
     volumes:
       - ./db:/data/db
+
+
+  chat_replies_api_nginx:
+    container_name: chat_replies_api_nginx
+    image: nginx:latest
+    working_dir: /var/www
+    ports:
+      - "80:81"
+      - "443:443"
+    volumes:
+      - ./chat-replies-api:/var/www
+      - ./dockerfiles/core_nginx.conf:/etc/nginx/conf.d/site.conf
+      - core_phpfpm
+
+  chat_replies_api_phpfpm:
+    container_name: chat_replies_api_phpfpm
+    image: php:7.2-fpm
+    working_dir: /var/www    
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile-replies-api
+
+    volumes:
+      - ./chat-replies-api:/var/www
