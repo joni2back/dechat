@@ -27,7 +27,7 @@ This chat has 2 final applications.
 -  **chat_replies_api_phpfpm** 
  	- PHP-FPM service to expose the php application
 	- ***Works with:** ./chat-replies-api/*
-	- ***Techs:** Nginx*
+	- ***Techs:** PHP7.2 + FPM + Laravel 5.8*
   
 ---
 ### Todo
