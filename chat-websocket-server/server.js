@@ -41,7 +41,6 @@ io.sockets.on('connection', socket => {
 
                 ChatService.loadOrCreateConversation(convId).then(conversation => {
                     ChatAIRepliesServer.getAReplyForConversation(conversation).then(response => {
-
                         (Array.isArray(response) ? response : [response]).forEach(reply => {
                             setTimeout(() => {
                                 ChatService.createAReplyFromBot(convId, {

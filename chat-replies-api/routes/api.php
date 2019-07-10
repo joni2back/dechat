@@ -15,6 +15,6 @@ use Illuminate\Http\Request;
 
 Route::middleware('api')->group(function() {
 
-    Route::get('/v1/replies/getAReplyForConversation', 'ApiController@hello');
+    Route::any('/v1/replies/get-reply', 'ApiController@getReply');
 
 });
