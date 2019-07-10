@@ -6,47 +6,66 @@
     <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="index.css" rel="stylesheet">
+
 </head>
 
 <body>
-    <main role="main" class="container">
-        <div class="content container-fluid bootstrap snippets">
-            <div class="row row-broken">
-                <div class="col-sm-12 col-xs-12 chat" style="outline: none;" tabindex="5001">
-                    <div class="col-inside-lg decor-default">
-                        <div class="chat-body">
+    <div id="chatapp">
+        <main role="main" class="container">
+
+            <div class="content container-fluid bootstrap snippets">
+                <div class="row row-broken">
+                    <div class="col-sm-12 col-xs-12 chat" style="outline: none;" tabindex="5001">
+                        <div class="col-inside-lg decor-default">
+                            <div class="chat-body">
+                                <h6 v-if="!loaded">Connecting...</h6>
+                                <h6 v-if="loaded && !historyLoaded">Loading history...</h6>
+                                <div v-for="message in messages" v-bind:key="message.messagedate">
+                                    <template-chat-message
+                                        :username="message.username"
+                                        :message="message.message"
+                                        :date="message.date"
+                                        :type="message.userType"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
+        </main>
 
-    <footer class="footer">
-        <div class="container">
-            <span class="text-muted">
-                <form class="form-answer">
-                    <div class="chat-feedback"></div>
-                    <input type="text" class="" placeholder="Type message..." name="chat-msg-input" placeholder="">
-                </form>
-            </span>
-        </div>
-    </footer>
+        <footer class="footer">
+            <div class="container">
+                <span class="text-muted">
+                    <form class="form-answer" v-on:submit.prevent="sendMsg">
+                        <div class="chat-feedback">
+                            {{ chatFeedback }}
+                        </div>
+                        <input type="text" :value="input" @input="update" placeholder="Type message..."  />
+                        <input type="submit" style="display: none" />
+                    </form>
+                </span>
+            </div>
+        </footer>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
-    <script type="chat/template" id="template-chat-message">
-        <div class="answer %class%">
+    
+    <script type="text/x-template" id="template-chat-message">
+        <div :class="'answer ' + answerclass">
             <div class="avatar">
-                <img src="%avatarurl%" alt="%username%">
+                <img :src="avatarurl" :alt="username">
                 <div class="status online"></div>
             </div>
             <div class="text">
-                %message%
+                {{ message }}
             </div>
-            <div class="name">%username% - %messagedate%</div>
+            <div class="name">{{ username }} - {{ messagedate }}</div>
         </div>
     </script>
+
     <script src="index.js"></script>
 
 </body>

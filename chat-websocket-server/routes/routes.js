@@ -12,22 +12,19 @@ router.get('/history/:conversationId', (req, res) => {
     const limit = 100;
 
     ChatConversation.findOne({_id: conversationId}).populate('messages').then(c => {
-        
         res.send(c);
     }).catch(err => {
         res.status(500).send(err);
     });
 });
 
-router.post('/start', (req, res) => {
-    const conversationId = req.body.conversationId;
-
+router.get('/start/:conversationId', (req, res) => {
+    const conversationId = req.params.conversationId;
     ChatService.loadOrCreateConversation(conversationId).then(conversation => {
         res.send(conversation);
     }).catch(err => {
         res.status(500).send(err);
     });
-
 });
 
 module.exports = router;

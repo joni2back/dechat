@@ -1,173 +1,166 @@
-;(($) => {
+const ChatConfig = {
+    host: location.hostname,
+    port: 80,
+};
 
-    const ChatConfig = {
-        host: location.hostname,
-        port: 80,
-    };
+function formatDate(date) {
+    date = new Date(date);
+    const day = date.getDate();
+    const monthIndex = date.getMonth();
+    const year = date.getFullYear();
+    const hour = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    return hour + ':' + minutes + ' ' + day + '/' + monthIndex + '/' + year;
+}
+
+function getHistory(conversationId) {
+    return new Promise((resolve, reject) => {
+        fetch(`/history/${conversationId}`).then(response => {
+            const contentType = response.headers.get('content-type');
+            const isJson = /(application|text)\/json/.test(contentType);
     
-    function sanitize(str) {
-        const div = window.document.createElement('div');
-        div.appendChild(window.document.createTextNode(str));
-        return div.innerHTML;
-    }
+            if (! response.ok) {
+                throw isJson ? response.json() : Error('unknown_response');
+            }
+
+            response.json()
+                .then(resolve)
+                .catch(reject);
+
+        }).catch(reject);
+    });
+};
+
+
+function startConversation() {
+    const conversationId = window.sessionStorage.getItem('conversationId');
+    return new Promise((resolve, reject) => {
+        fetch(`/start/${conversationId}`).then(response => {
+            const contentType = response.headers.get('content-type');
+            const isJson = /(application|text)\/json/.test(contentType);
     
-    function parseLinks(str) {
-        const exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-        const text1 = str.replace(exp, '<a class="label label-primary" href="$1">$1</a>');
-        const exp2 =/(^|[^\/])(www\.[\S]+(\b|$))/gim;
-        return text1.replace(exp2, '$1<a target="_blank" class="label label-primary" href="http://$2">$2</a>');
-    }
-    
-    function handleUserInput(str) {
-        return parseLinks(sanitize(str));
-    }
-    
-    function formatDate(date) {
-        date = new Date(date);
-        const day = date.getDate();
-        const monthIndex = date.getMonth();
-        const year = date.getFullYear();
-        const hour = date.getHours();
-        const minutes = date.getMinutes();
-        const seconds = date.getSeconds();
-        return hour + ':' + minutes + ' ' + day + '/' + monthIndex + '/' + year;
-    }
-    
-    function getHistory(conversationId) {
-        return new Promise((resolve, reject) => {
-            $.ajax('/history/' + conversationId).done(response => {
-                if (response.messages) {
-                    return resolve(response.messages);
-                }
-                reject(response);
-            }).fail(err => {
-                reject(err);
-            });
-        });
-    }
-    
-    function startConversation() {
-        return new Promise((resolve, reject) => {
-            const conversationId = window.sessionStorage.getItem('conversationId');
-            $.ajax({
-                method: 'POST',
-                url: '/start',
-                data: {
-                    conversationId: conversationId
-                }
-            }).then(response => {
+            if (! response.ok) {
+                throw isJson ? response.json() : Error('unknown_response');
+            }
+
+            response.json().then(response => {
                 if (response._id) {
                     window.sessionStorage.setItem('conversationId', response._id);
                     return resolve(response._id);
                 }
                 reject(response) ;
-            }).catch(err => {
-                reject(err);
-            });
-        });
-    }
-    
-    function beep() {
-        return /* play html5 sound */;
-    }
-    
-    function goDown($element)
-    {
-        $('.chat').scrollTop(999999);
-    }
-    
-    function createMessageFromTemplate(data, itsMe)
-    {
-        let html = $('#template-chat-message').html();
-        html = html.replace(/%username%/g, itsMe ? 'Me' : 'Support');
-        html = html.replace(/%avatarurl%/g, itsMe ? 'avatar.png' : 'support.jpg');
-        html = html.replace(/%message%/g, handleUserInput(data.message));
-        html = html.replace(/%messagedate%/g, handleUserInput(formatDate(data.date)));
-        html = html.replace(/%class%/g, itsMe ? 'right' : 'left');
-        return html;
-    }
+            }).catch(reject);
 
-    function writeMsg(data, itsMe) {
-        const html = createMessageFromTemplate(data, itsMe);
-        return $('.chat-body').append(html);
-    }
+        }).catch(reject);
+    });
+};
 
-    function initChat() {
-        let historyLoaded = false;
-        const $messageInput = $('input[name=chat-msg-input]');
-        const $messageForm = $('form:first');
-        const $chatRoom = $('.chat-body');
-        const $feedback = $('.chat-feedback');
-    
-        const loadHistory = conversationId => {
-            !historyLoaded && getHistory(conversationId).then(messages => {
-                historyLoaded = true;
-                messages.forEach(message => {
-                    writeMsg(message, message.userType === 'user');
-                });
-                goDown($chatRoom);
-            });
-        };
-    
+
+Vue.component('template-chat-message', {
+	template: '#template-chat-message',
+    props: {
+        message: String,
+        date: String,
+        type: String,
+	},
+	computed: {
+        answerclass: function() {
+            return this.type === 'bot' ? 'left' : 'right';
+        },
+        avatarurl: function() {
+            return this.type === 'bot' ? 'support.jpg' : 'avatar.png';
+        },
+        messagedate: function() {
+            return formatDate(this.date)
+        },
+        username: function() {
+            return this.type === 'bot' ? 'Support' : 'Me';
+        }
+    }
+});
+
+new Vue({
+    el: '#chatapp',
+    data: {
+        input: '',
+        chatFeedback: '',
+        messages: [],
+        socket: null,
+        conversationId: null,
+        loaded: false,
+        historyLoaded: false
+    },
+    mounted: function() {
         startConversation().then(conversationId => {
-            let socket = io.connect(ChatConfig.host + ':' + ChatConfig.port);
+            this.conversationId = conversationId;
+            this.socket = io.connect(ChatConfig.host + ':' + ChatConfig.port);
 
-
-            function sendMsg(event) {
-                event.preventDefault();
-        
-                socket.emit('new_message', {
-                    message: $messageInput.val(),
-                    conversationId: conversationId
+            const loadHistory = () => {
+                !this.historyLoaded && getHistory(this.conversationId).then(response => {
+                    this.historyLoaded = true;
+                    this.messages = response.messages;
+                    this.scrollDown();
                 });
-        
-                $messageInput.val('');
-                setTimeout(() => {
-                    goDown($chatRoom);
-                }, 50);
             };
 
-            socket.once('connect', () => {
-                socket.emit('join_conversation', conversationId);
+            this.socket.once('connect', () => {
+                this.socket.emit('join_conversation', this.conversationId);
+                this.loaded = true;
                 loadHistory(conversationId);
                 window.console.warn('__chat_connection_success');
             }).once('connect_error', () => {
+                this.loaded = false;
                 loadHistory(conversationId);
                 window.console.warn('__chat_connection_error');
             }).once('connect_timeout', () => {
+                this.loaded = false;
                 loadHistory(conversationId);
                 window.console.warn('__chat_connection_timeout');
             });
         
-            $messageInput.on('keypress', event => {
-                event.keyCode == 13 && sendMsg(event);
-            });
-        
-            socket.on('new_message', data => {
+            this.socket.on('new_message', data => {
                 const itsMe = data.userType === 'user';
-                $feedback.html('');
-                writeMsg(data, itsMe);
-                !itsMe && setTimeout(() => {
-                    beep();
-                });
-                goDown($chatRoom);
+                this.chatFeedback = '';
+                this.messages.push(data);
+                this.scrollDown();
             })
         
             let typingTimeout = null;
-            socket.on('typing', data => {
-                $feedback.html('Support is typing...');
+            this.socket.on('typing', data => {
+                this.chatFeedback = 'Support is typing...';
                 window.clearTimeout(typingTimeout);
                 typingTimeout = setTimeout(() => {
-                    $feedback.html('');
-                }, 2200)
-            })
+                    this.chatFeedback = '';
+                }, 5000);
+            });
     
         }).catch(err => {
             window.console.error(err);
         });
-    
-    }
-    
-    $(window.document).ready(initChat);
+    },
+    computed: {},
+    methods: {
+        scrollDown: function() {
+            setTimeout(() => {
+                const el = window.document.querySelector('.chat');
+                return el && el.scrollTo(0, 9999);
+            }, 50);
+        },
+        sendMsg: function(event) {
+            if (! this.socket) {
+                return;
+            }
+            this.socket.emit('new_message', {
+                message: this.input,
+                conversationId: this.conversationId
+            });
 
-})(window.jQuery);
+            this.input = '';
+            this.scrollDown();
+        },
+        update: function (e) {
+            this.input = e.target.value;
+        }
+    }
+});
