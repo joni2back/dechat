@@ -32,6 +32,7 @@ function loadOrCreateConversation(conversationId) {
 function parseNewMessage(conversationId, data) {
     return new Promise((resolve, reject) => {
 
+        console.log(conversationId, data);
         if (! (data.message || '').trim()) {
             return reject('empty_message');
         }

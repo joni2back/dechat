@@ -12,10 +12,13 @@ RUN apt-get update && \
         libssl-dev \
         libmcrypt-dev
 
-RUN docker-php-ext-install mcrypt
+
+#RUN docker-php-ext-install mcrypt
+
+RUN pecl install mcrypt-1.0.2
+RUN docker-php-ext-enable mcrypt
 
 RUN docker-php-ext-install pdo_mysql
-
 RUN docker-php-ext-configure gd \
         --enable-gd-native-ttf \
         --with-png-dir=/usr/lib \
@@ -23,6 +26,13 @@ RUN docker-php-ext-configure gd \
         --with-freetype-dir=/usr/include/freetype2 && \
     docker-php-ext-install gd
 
+
+WORKDIR /var/www/chat-replies-api
+
 RUN curl https://getcomposer.org/installer -o composer-setup.php
 RUN php composer-setup.php
+
+COPY chat-replies-api .
+RUN chmod 777 /var/www/chat-replies-api/storage -Rf
+
 RUN php composer.phar install

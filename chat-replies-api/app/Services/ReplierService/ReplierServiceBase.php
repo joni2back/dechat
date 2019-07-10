@@ -10,7 +10,7 @@ abstract class ReplierServiceBase {
     const R_IS_NEGATING = "/^(nop?e?|nu|nah|neh|idn)/i";
     const R_IS_GREETING = "/^(morning|(good (morning|day|night|evening))|hola|hey|hi|hello|sup|(what?s.up)|(how are (you|u)?\?))/i";
     const R_IS_CLOSING = "/^(bye|good bye|bbye|chau.+(thank you|thanks)?)/i";
-    const R_IS_APPRECIATING = "/^(ok.thanks|thanks|(thank.you)|great|tk)$/i";
+    const R_IS_APPRECIATING = "/^(ok thanks|thanks|(thank.you)|great|tk)!?$/i";
 
     protected $purposes = [];
     protected $conversation;

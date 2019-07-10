@@ -67,11 +67,11 @@ class SupportBotReplierService extends ReplierServiceBase {
             'count' => $count
         ]);
 
-        if ($count <= 5 && preg_match(self::R_HAS_FORGOTTEN_PWD, $lastMessage)) {
+        if ($count <= 7 && preg_match(self::R_HAS_FORGOTTEN_PWD, $lastMessage)) {
             return ['Did you forgot your password right?'];
         }
         
-        if ($count <= 5 && preg_match(self::R_WANNA_BUY_BIKE, $lastMessage)) {
+        if ($count <= 7 && preg_match(self::R_WANNA_BUY_BIKE, $lastMessage)) {
             return ['You mean you wanna buy a bike?'];
         }
 

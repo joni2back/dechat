@@ -131,7 +131,7 @@ body {
     bottom: 0;
 }
 .chat-body .answer.left .text {
-    background: #ebebeb;
+    background: #f0f0f0;
     color: #333333;
     border-radius: 8px 8px 8px 0;
 }
@@ -142,7 +142,7 @@ body {
 }
 .chat-body .answer.left .text:before {
     left: -30px;
-    border-right-color: #ebebeb;
+    border-right-color: #f0f0f0;
     border-right-width: 12px;
 }
 .chat-body .answer .text:before {

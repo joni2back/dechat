@@ -11,11 +11,11 @@ services:
       dockerfile: ./Dockerfile-chat_bot_node
     command: npm run start 
     environment:
-      - PORT=6860
+      - PORT=80
       - MONGO_HOST=chat_bot_mongodb
     tty: true
     ports:
-      - 6860:6860
+      - 80:80
     links:
       - chat_bot_mongodb
 
