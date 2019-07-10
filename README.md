@@ -2,7 +2,7 @@
 
 ### Services and applications
 This chat has 2 final applications. 
-- The first one is **chat-websocket-server** an express app that provides final frontend interface to the user and also handles websocket communication between **user <> bot**
+- The first one is **chat-websocket-server** an express app that provides final frontend interface (in VueJS) to the user and also handles websocket communication between **user <> bot**
 - The second one is **chat-replies-api**, an isolated service to perform bot replies  based on a conversation history. This can use different approaches to return efficient replies, for example Artificial Intelligence, Machine Learning, Cleverbot, etc.
 
 
@@ -12,7 +12,7 @@ This chat has 2 final applications.
 	- Web application to serve websocket chat and frontend client
 	- ***Works with:** ./chat-websocket-server/*
 	- ***Language:** EcmaScript6 / Javascript*
-	- ***Techs:** Node + SocketIO + ExpressJS + Mongoose*
+	- ***Techs:** Node + SocketIO + ExpressJS + Mongoose + VueJS*
 
 -  **chat_bot_mongodb** 
 	- Database to save chat conversations
